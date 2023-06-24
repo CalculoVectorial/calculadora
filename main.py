@@ -1,6 +1,7 @@
 from calculadora import Calculadora
 from src.label import LabelText
 from src.input import Input
+from src.calculadora import Calculadora
 import pygame as py
 import sys
 
