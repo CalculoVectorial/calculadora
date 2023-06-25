@@ -4,6 +4,8 @@ from src.input import InputText
 import pygame as py
 import sys
 
+RAZON_ANCHO = 2/3
+
 def main():
     calculadora = Calculadora()
     calculadora.add_constante('a', 7.5)
@@ -22,6 +24,16 @@ def main():
     # mas boilerplate
     fps = 60
     clock = py.time.Clock()
+
+    # Zona de graficación, parte derecha
+    razon_ancho_graficas = RAZON_ANCHO # cuanto ancho va a ocupar
+    posx_graficas = size[0] * (1 - razon_ancho_graficas)
+    graficas = py.Surface((razon_ancho_graficas*size[0], size[1]))
+
+    # Zona de entrada de texto, botones, etc LA UI (user interface)
+    razon_ancho_ui = 1 - RAZON_ANCHO
+    posx_ui = 0
+    ui = py.Surface((razon_ancho_ui*size[0], size[1])) 
 
     # Para dibujar texto
     font = py.font.Font(None, 24)
@@ -59,6 +71,11 @@ def main():
         # Darle color al fondo
         screen.fill('black')
         canvas.fill('white')
+        ui.fill('grey')
+        graficas.fill('white')
+        
+        screen.blit(ui, (posx_ui, 0))
+        screen.blit(graficas, (posx_graficas, 0))
         
         # Dibujar el label en el canvas
         for label in labels:
@@ -66,11 +83,11 @@ def main():
 
         for input_text in inputs:
             input_text.draw(canvas, font, user_text)
-            
+        
+        screen.blit(canvas, (0, 0))
 
         # Dibujar el canvas en la pantalla
         # Ultimo en dibujar, para que se vea debajo de todo
-        screen.blit(canvas, (0, 0))
         py.display.flip()
         clock.tick(fps)
 
