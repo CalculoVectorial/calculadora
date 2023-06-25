@@ -74,20 +74,18 @@ def main():
         ui.fill('grey')
         graficas.fill('white')
         
-        screen.blit(ui, (posx_ui, 0))
-        screen.blit(graficas, (posx_graficas, 0))
-        
         # Dibujar el label en el canvas
         for label in labels:
-            label.draw(canvas, font)
+            label.draw(ui, font)
 
         for input_text in inputs:
-            input_text.draw(canvas, font, user_text)
+            input_text.draw(ui, font, user_text)
         
-        screen.blit(canvas, (0, 0))
-
+        canvas.blit(ui, (posx_ui, 0))
+        canvas.blit(graficas, (posx_graficas, 0))
         # Dibujar el canvas en la pantalla
         # Ultimo en dibujar, para que se vea debajo de todo
+        screen.blit(canvas, (0, 0))
         py.display.flip()
         clock.tick(fps)
 
