@@ -1,15 +1,14 @@
-import pygame as py
+import pygame_gui as pyg
+from .box import Box
 
-class LabelText:   
-    def __init__(self, text, color, size, pos):
-        self.text = text # texto 
-        self.color = color # color del fondo del rectangulo
-        self.size = size # tamaño del rectangulo (ancho, alto)
-        self.pos = pos # posicion del rectangulo (x, y)
-        self.rect = py.Rect(self.pos, self.size)
+class Label(Box):
+    def __init__(self, size, pos, text):
+        super().__init__(size, pos)
+        self.text = text #Texto
 
-    def draw(self, canvas, font):
-        py.draw.rect(canvas, self.color, self.rect) # dibujar el rectangulo
-        text = font.render(self.text, True, 'white') # renderizar el texto
-        text_rect = text.get_rect(center=self.rect.center) # centrar el texto
-        canvas.blit(text, text_rect) # dibujar el texto en el canvas
+    def create_my_box(self, manager): #Override
+        self.label = pyg.elements.UILabel(relative_rect=self.true_rect, text=self.text, manager = manager)
+    
+    def set_text(self, text):
+        self.text = text
+        self.label.set_text(self.text)
