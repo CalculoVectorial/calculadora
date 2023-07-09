@@ -1,5 +1,8 @@
 <script setup>
 let laSensor = new LinearAccelerationSensor({frequency: 60});
+import { io } from "socket.io-client";
+
+const socket = null;
 
 laSensor.addEventListener("reading", (e) => {
   console.log(`Linear acceleration along the X-axis ${laSensor.x}`);
