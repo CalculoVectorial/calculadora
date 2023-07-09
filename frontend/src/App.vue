@@ -9,13 +9,18 @@ laSensor.start();
 
 let id = 0;
 
-function sendData() {
-  socket.emit(`graph-acc`, {
+const ticks = 1000 / 60;
+
+function send() {
+  socket.emit('graph-acc', {
     x: laSensor.x,
     y: laSensor.y,
     z: laSensor.z,
   });
-  id++;
+}
+
+function measureData() {
+  setInterval(send, ticks);
 }
 
 </script>
@@ -28,7 +33,7 @@ function sendData() {
   <main>
     <p>Hello</p>
     <p>Start sending data</p>
-    <button @click="sendData">Measure</button>
+    <button @click="measureData">Measure</button>
   </main>
 </template>
 
