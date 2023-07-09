@@ -13,6 +13,7 @@ const io = new Server(httpServer, {
 io.on('connection', (socket) => {
     socket.on('graph-acc', (arg) => {
         console.log(arg);
+        socket.emit('graph', { arg });
     })
 })
 
