@@ -2,14 +2,21 @@
 let laSensor = new LinearAccelerationSensor({frequency: 60});
 import { io } from "socket.io-client";
 
-const socket = null;
+const socket = io('https://calc-backend-na60.onrender.com');
 
-laSensor.addEventListener("reading", (e) => {
-  console.log(`Linear acceleration along the X-axis ${laSensor.x}`);
-  console.log(`Linear acceleration along the Y-axis ${laSensor.y}`);
-  console.log(`Linear acceleration along the Z-axis ${laSensor.z}`);
-});
+laSensor.addEventListener("reading", (e) => {});
 laSensor.start();
+
+let id = 0;
+
+function sendData() {
+  socket.emit(`graph-acc`, {
+    x: laSensor.x,
+    y: laSensor.y,
+    z: laSensor.z,
+  });
+  id++;
+}
 
 </script>
 
@@ -20,6 +27,8 @@ laSensor.start();
 
   <main>
     <p>Hello</p>
+    <p>Start sending data</p>
+    <button @click="sendData">Measure</button>
   </main>
 </template>
 
