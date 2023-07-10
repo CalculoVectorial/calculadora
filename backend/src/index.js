@@ -10,12 +10,21 @@ const io = new Server(httpServer, {
     }
 });
 
+const roomId = 1;
+
 io.on('connection', (socket) => {
-    socket.on('graph-acc', (arg) => {
-        console.log(arg);
-        socket.emit('graph', { arg });
+    let pythonService = true;
+
+    socket.on('measure', (arg) => {        
+        socket.join(roomId);
+        socket.broadcast.to(roomId).emit('graph', arg);
+        pythonService = false;
     })
-})
+
+    if (pythonService) {
+        socket.join(roomId);
+    }
+});
 
 httpServer.listen(3000, () => {
     console.log('listening on *:3000');

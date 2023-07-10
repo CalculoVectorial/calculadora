@@ -2,7 +2,10 @@
 let laSensor = new LinearAccelerationSensor({frequency: 60});
 import { io } from "socket.io-client";
 
+// PROD
 const socket = io('https://calc-backend-na60.onrender.com');
+// DEV
+// const socket = io('http://localhost:3000');
 
 laSensor.addEventListener("reading", (e) => {});
 laSensor.start();
@@ -12,7 +15,7 @@ let id = 0;
 const ticks = 1000 / 60;
 
 function send() {
-  socket.emit('graph-acc', {
+  socket.emit('measure', {
     x: laSensor.x,
     y: laSensor.y,
     z: laSensor.z,
