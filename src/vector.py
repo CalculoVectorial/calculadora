@@ -4,6 +4,8 @@ from algebra import Algebraico
 class Vector(Algebraico):
     calculadora = None
     def __init__(self, coord): #Inizializacion del vector
+        if type(coord) == str:
+            coord = Vector.calculadora.evaluar(coord)
         if isinstance(coord, Vector):
             self.coord = Vector.calculadora.evaluar(coord.coord)
         else:

@@ -11,7 +11,8 @@ class Funcion:
         self.dim_dominio = len(variables) 
 
     def __call__(self, *args): #Al llamar a la funcion f(x) se puede evaluar de 4 maneras distintas
-        if isinstance(args[0], np.ndarray): #Nota: los vectores de las matrices deben estar en fila
+        isnt_arr = np.array(list(map(lambda x: isinstance(x, np.ndarray), args)))
+        if isnt_arr.any(): #Nota: los vectores de las matrices deben estar en fila
             if is_desempaquetado(args):
                 args = empaquetar(args)
             else:
@@ -40,9 +41,12 @@ class FuncionEscalar(Funcion):
 
     def evaluar_array(self, args): #Evalua la funcion con argumentos arrays
         if len(self.variables) > 1:
-            return self.func(*args)
+            result =  self.func(*args)
         else:
-            return self.func(args)
+            result = self.func(args)
+        if not isinstance(result, np.ndarray):
+            result = np.full(len(args[0]), result)
+        return result
 
     
 
@@ -63,6 +67,15 @@ class FuncionVectorial(Funcion):
     
     def evaluar_array(self, args): #Evalua la funcion con argumentos arrays
         if len(self.variables) > 1:
-            return np.array(self.func(*args))
+            result = self.func(*args)
         else:
-            return np.array(self.func(args))
+            result = self.func(args)
+
+        for i in range(len(result)):
+            if np.array(result[i]).size == 1:
+                if len(self.variables) >1:
+                    result[i] = np.full(len(args[0]), result[i])
+                else:
+                    result[i] = np.full(len(args), result[i])
+        return np.array(result)
+
