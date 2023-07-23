@@ -1,94 +1,35 @@
-from src.calculadora import Calculadora
-from src.label import LabelText
-from src.input import InputText 
-import pygame as py
-import sys
+import numpy as np
+import pygame as py, sys
+from globals_var import *
 
-RAZON_ANCHO = 2/3
-
-def main():
-    calculadora = Calculadora()
-    calculadora.add_constante('a', 7.5)
-    # calculadora.delete_constante('a')
-    # print(calculadora.evaluar('a+3'))
-
-    # Setup inicial del juego, boilerplate
-    py.init()
-    size = (850, 480)
-    screen = py.display.set_mode(size)
-    py.display.set_caption("Calculadora Gráfica")
-
-    # Por buena practica, se dibuja encima del canvas
-    canvas = py.Surface(size)
-
-    # mas boilerplate
-    fps = 60
-    clock = py.time.Clock()
-
-    # Zona de graficación, parte derecha
-    razon_ancho_graficas = RAZON_ANCHO # cuanto ancho va a ocupar
-    posx_graficas = size[0] * (1 - razon_ancho_graficas)
-    graficas = py.Surface((razon_ancho_graficas*size[0], size[1]))
-
-    # Zona de entrada de texto, botones, etc LA UI (user interface)
-    razon_ancho_ui = 1 - RAZON_ANCHO
-    posx_ui = 0
-    ui = py.Surface((razon_ancho_ui*size[0], size[1])) 
-
-    # Para dibujar texto
-    font = py.font.Font(None, 24)
-
-    # LabelText, clase para dibujar texto con un rectangulo de fondo
-    labels = []
-    labels.append(LabelText('F(x)', 'grey', (100, 100), (0, 0)))
-
-    # InputText, clase para entradas de texto, hereda de LabelText
-    inputs = []
-    inputs.append(InputText('', 'blue', (100,100), (0, 100), False, 'orange', 'green'))
-
-    # texto del usuario
-    user_text = ''
-
-    while True:
-        for event in py.event.get():
-            if event.type == py.QUIT:
-                sys.exit()
-
-            if event.type == py.MOUSEBUTTONDOWN:
-                for input_text in inputs:
-                    if input_text.clicked(event.pos):
-                        input_text.setActive(True)
-                    else:
-                        input_text.setActive(False)
-            
-            if event.type == py.KEYDOWN: # se aplasta una tecla
-                if event.key == py.K_BACKSPACE: # si se esta borrando datos 
-                    user_text = user_text[:-1]
-                else: # se agrega 
-                    user_text += event.unicode
-                        
-
-        # Darle color al fondo
-        screen.fill('black')
-        canvas.fill('white')
-        ui.fill('grey')
-        graficas.fill('white')
+screen = py.display.set_mode(size)
+fps = 60
+clock = py.time.Clock()
+while True:
+    pressed = py.mouse.get_pressed()
+    mouse = py.mouse.get_rel()
+    pos = py.mouse.get_pos()
+    for event in py.event.get():
+        if event.type == py.QUIT:
+            sys.exit()
         
-        # Dibujar el label en el canvas
-        for label in labels:
-            label.draw(ui, font)
-
-        for input_text in inputs:
-            input_text.draw(ui, font, user_text)
+        if event.type == py.MOUSEWHEEL:
+            g.zoom(event, pos)
+            g3.zoom(event, pos)
+        g.mouse_event(pressed, mouse, pos)
+        g3.mouse_event(pressed, mouse, pos)
+        manager.process_events(event) #Detecta eventos del for event, esta línea es OBLIGATORIA
+                
+    contain_canvas.click_event(pressed, mouse, pos)  #Detecta eventos de clicks para botones, esta línea es OBLIGATORIA
+    
+    screen.fill('black')
+    contain_canvas.draw(screen) #Se dibuja el canvas en el screen
+   
+    g3.draw(calculadora.get_grafics())
+    g.draw(calculadora.get_grafics())
+    py.display.flip()
+    manager.update(clock.tick(fps)/600) #Se actualiza el manager, esta línea es OBLIGATORIA
         
-        canvas.blit(ui, (posx_ui, 0))
-        canvas.blit(graficas, (posx_graficas, 0))
-        # Dibujar el canvas en la pantalla
-        # Ultimo en dibujar, para que se vea debajo de todo
-        screen.blit(canvas, (0, 0))
-        py.display.flip()
-        clock.tick(fps)
 
 
-if __name__ == '__main__':
-    main()
+

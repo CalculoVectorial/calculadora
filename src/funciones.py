@@ -48,6 +48,8 @@ class FuncionEscalar(Funcion):
             result = np.full(len(args[0]), result)
         return result
 
+    def update(self):
+        self.func = Funcion.calculadora.evaluar(f'lambda {",".join(self.variables)}: {self.expresion}')
     
 
 class FuncionVectorial(Funcion):
@@ -78,4 +80,10 @@ class FuncionVectorial(Funcion):
                 else:
                     result[i] = np.full(len(args), result[i])
         return np.array(result)
+    
+    def update(self):
+        if len(self.expresion) == 1:
+            self.func = Funcion.calculadora.evaluar(f'lambda {",".join(self.variables)}: {",".join(self.expresion)}')
+        else:
+            self.func = Funcion.calculadora.evaluar(f'lambda {",".join(self.variables)}: [{",".join(self.expresion)}]')
 

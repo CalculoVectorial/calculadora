@@ -1,12 +1,15 @@
 import numpy as np
 import time
-
+import pygame as py
+ 
 POINTNAME = [f'P{i}' for i in range(100)]
 VECTORNAME = [f'V{i}' for i in range(100)]
 CURVANAME = [f'C{i}' for i in range(100)]
 CAMPONAME = [f'Camp{i}' for i in range(100)]
 SUPNAME = [f'S{i}' for i in range(100)]
 SUPPARNAME = [f'SP{i}' for i in range(100)]
+BOLANAME = [f'B{i}' for i in range(100)]
+
 
 def eliminar_repetidos(arr1, arr2):
     #Elimina repetidos de un array
@@ -67,9 +70,7 @@ def cartesiano3D(rango1, rango2, rango3, rebanadas):
 def detectar_color(color):
     if color.find(',')>0:
         color = np.array(color.split(','), dtype=int)
-        return color
-    else:
-        return color
+    return py.Color(color)
 
 def move_column(array, axis):
     if axis==2:
@@ -103,7 +104,10 @@ def gen_dom(coords, rebanadas, rango, axis):
 
 def identificar_tipo_entrada(texto):
     # Verificar si es un punto
-    if texto.startswith("(") and texto.endswith(")") and "," in texto:
+    if texto.startswith(('Esfera', 'Elipse', 'Hiperboloide1', 'Hiperboloide2', 'Cono', 'Parametro', 'Bola')):
+        return "Special"
+        
+    elif texto.startswith("(") and texto.endswith(")") and "," in texto:
         return "Point"
 
     # Verificar si es un vector
@@ -115,7 +119,7 @@ def identificar_tipo_entrada(texto):
         return "Superficie"
 
     # Verificar si es una superficie paramétrica
-    elif "u" in texto and "v" in texto and ";" in texto:
+    elif ("u" in texto or "v" in texto) and ";" in texto:
         return "SuperficieParametrica"
 
     # Verificar si es una curva
@@ -131,7 +135,7 @@ def identificar_tipo_entrada(texto):
 
     elif not ";" in texto:
         return "Superficie"
-
+    
     else:
         return "Entrada no identificada"
 
@@ -144,10 +148,57 @@ def nombre_default(tipo):
         return CURVANAME.pop(0)
     elif tipo == 'Campo':
         return CAMPONAME.pop(0)
-    elif tipo == 'Superficie':
+    elif tipo == 'Superficie' or tipo == 'Special':
         return SUPNAME.pop(0)
     elif tipo == 'SuperficieParametrica':
         return SUPPARNAME.pop(0)
     else:
         return 'Nada'
+
+def ajustar_rango(rango1, rango2, mode, axis):
+    if str(rango1) == '':
+        if mode == 'Cartesiano':
+            rango1 = np.array([-3,3])
+        elif mode == 'Cilindro':
+            rango1 = np.array([0,3])
+        else:
+            rango1 = np.array([0,2*np.pi])
+
+    if str(rango2) == '':
+        if mode == 'Cartesiano':
+            rango2 = np.array([-3,3])
+        elif mode == 'Cilindro':
+            rango2 = np.array([0,2*np.pi])
+        else:
+            rango2 = np.array([0,np.pi])
+
+    if mode == 'Cartesiano':
+        return [rango1, rango2]
+    elif mode == 'Cilindro' and axis!=3:
+        if rango1[0]<0:
+            rango1[0] = 0
+        if rango1[1]<0:
+            rango1[1] = abs(rango1[1])
+    elif mode == 'Esfera' and axis==2:
+        if rango2[0]<0:
+            rango2[0] = 0
+        if rango2[1]<0:
+            rango2[1] = abs(rango2[1])
+    elif mode == 'Esfera' and axis==3:
+        if rango1[0]<0:
+            rango2[0] = 0
+        if rango1[1]<0:
+            rango1[1] = abs(rango1[1])
+
+    return [rango1, rango2]
+
+def info_special_sup(exp):
+    index = exp.find('(')
+    name = exp[:index]
+    parametros = exp.replace(name, '')[1:-1]
+    index = parametros.find('(')
+    info = parametros[:index]
+    desplazamiento = parametros[index:]
+    info = info[:-1].split(",")
+    return name, info, desplazamiento
 

@@ -2,6 +2,7 @@ import numpy as np
 import pygame as py
 from util import *
 from vector import Vector
+from funciones import *
 
 class Graficador:
     def __init__(self, dimension, canvas, escala=50):
@@ -39,9 +40,9 @@ class Graficador:
     def zoom(self, event,pos):
         if self.get_visible() and self.canvas.rect.collidepoint(pos):
             if event.y == 1:
-                self.escala += 2   
+                self.escala += self.escala/20  
             elif event.y == -1 and self.escala > 2:
-                self.escala -= 2   
+                self.escala -= self.escala/20     
 
     def transformacion(self, coord):
         coord = np.array(coord, dtype=float)
@@ -73,6 +74,14 @@ class Graficador:
     def interpolacion_lineal(self, points, color):
         py.draw.lines(self.canvas.canvas, color, False, points)
     
+    def draw_bola(self, bola):
+        bola.move()
+        info = bola.get_info().transpose()
+        info = self.transformacion(info).transpose()
+        color = bola.color
+        self.interpolacion_lineal(info, color)
+        py.draw.circle(self.canvas.canvas, "blue", info[-1],self.escala/5)
+        py.draw.circle(self.canvas.canvas, "white", info[-1],self.escala/5,1)
     
 class Graficador2D(Graficador):
     def __init__(self, canvas, escala=50):
@@ -99,7 +108,7 @@ class Graficador2D(Graficador):
         py.draw.line(self.canvas.canvas, 'white', self.transformacion([0, -limit_y]), self.transformacion([0, limit_y]))
 
     def draw_malla(self):
-        borde_x = self.canvas.size[0]//(2*self.escala) + 2
+        borde_x = int(self.canvas.size[0]//(2*self.escala) + 2)
         borde_y = borde_x
         for i in range(1, borde_x):
             py.draw.line(self.canvas.canvas, (50,50,50), self.transformacion([i,-borde_y]), self.transformacion([i,borde_y]))
@@ -123,6 +132,11 @@ class Graficador2D(Graficador):
                 
             for campo in grafics['Campo2D']:
                 self.draw_campo(grafics['Campo2D'][campo])
+
+            for bola in grafics['Bola']:
+                bola = grafics['Bola'][bola]
+                if bola.dim == 2:
+                    self.draw_bola(bola)
 
 
 class Graficador3D(Graficador):
@@ -153,16 +167,25 @@ class Graficador3D(Graficador):
         if pressed[0] and self.canvas.rect.collidepoint(pos):
             if mouse[0] < 0 and self.get_visible():
                 self.set_theta(np.pi/50)
-
+                if self.theta>2*np.pi:
+                    self.theta = 0
+                
             if mouse[0] > 0 and self.get_visible():
                 self.set_theta(-np.pi/50)
+                if self.theta<0:
+                    self.theta = 2*np.pi
+
         
         if pressed[2] and self.canvas.rect.collidepoint(pos):
             if mouse[1] < 0 and self.get_visible():
                 self.set_phi(np.pi/50)
+                if self.phi>2*np.pi:
+                    self.phi = 0
 
             if mouse[1] > 0 and self.get_visible():
                 self.set_phi(-np.pi/50)
+                if self.phi<0:
+                    self.phi = 2*np.pi
 
     def draw_ejes(self):
         py.draw.line(self.canvas.canvas, 'blue', self.transformacion([-5, 0, 0]), self.transformacion([5, 0, 0]))
@@ -182,6 +205,10 @@ class Graficador3D(Graficador):
     def draw_superficie(self, superficie):
         color = superficie.color
         info = superficie.get_info()
+        if np.pi/2<self.theta<3*np.pi/2 and superficie.mode == 'Cartesiano':
+            info = info[::-1] 
+        if (0<self.phi<np.pi/2 or 3*np.pi/2<self.phi<2*np.pi) and superficie.mode == 'Esfera':
+            info = info[::-1]  
         for vertice in info:
             vertice = self.transformacion(np.array(vertice).transpose()).transpose()
             py.draw.polygon(self.canvas.canvas, color, vertice)
@@ -189,6 +216,7 @@ class Graficador3D(Graficador):
 
     def draw(self, grafics):
         if self.visible:
+                
             for superficie in grafics['Superficie3D']:
                 self.draw_superficie(grafics['Superficie3D'][superficie])
             
@@ -208,6 +236,11 @@ class Graficador3D(Graficador):
             
             for curva in grafics['Curva3D']:
                 self.draw_curva(grafics['Curva3D'][curva])
+            
+            for bola in grafics['Bola']:
+                bola = grafics['Bola'][bola]
+                if bola.dim == 3:
+                    self.draw_bola(bola)
 
 class Vector2D:
     def __init__(self, vector, origen = (0,0), color = 'red', visible=True):
@@ -229,6 +262,7 @@ class Vector2D:
     
     def __str__(self):
         return str(self.vector)
+    
 
 class Point2D:
     def __init__(self, coord, color='blue', visible=True):
@@ -243,19 +277,27 @@ class Point2D:
         return str(tuple(self.coord))
 
 class Campo2D:
-    def __init__(self, func, color='orange', visible=True):
+    def __init__(self, func, rebanadas, long_vector, unitario=False,color='orange', visible=True):
         self.func = func
         self.color = color
         self.visible = visible
+        self.rebanadas = rebanadas
+        self.long = long_vector
+        self.unitario = unitario
         self.info = self.load_info()
     
     def load_info(self):
-        dom = cartesiano((-10, 10), (-10, 10), 21)
+        self.func.update()
+        dom = cartesiano((-10, 10), (-10, 10), self.rebanadas)
         result = []
         for i in range(len(dom)):
             v = dom[i]
-            vector = self.func(v[0], v[1])
+            if self.unitario:
+                vector = self.func(v[0], v[1]).unitario()
+            else:
+                vector = self.func(v[0], v[1])
             
+            vector *= self.long
             if not (np.array(vector.coord, dtype=str) == 'nan').any() and (abs(np.array(vector.coord)).max()<1000).all():
                 result.append(Vector2D(vector, v, self.color))
         return result
@@ -283,32 +325,40 @@ class Point3D(Point2D):
 
     
 class Campo3D(Campo2D):
-    def __init__(self, func, color='orange'):
-        super().__init__(func, color)
+    def __init__(self, func, rebanadas, long_vector, unitario,color='orange'):
+        super().__init__(func, rebanadas, long_vector, unitario,color)
     
     def load_info(self):
-        dom = cartesiano3D((-5, 5), (-5, 5), (-5, 5), 11)
+        self.func.update()
+        dom = cartesiano3D((-5, 5), (-5, 5), (-5, 5), self.rebanadas//2)
         result = []
         for i in range(len(dom)):
             v = dom[i]
-            vector = self.func(v[0], v[1], v[2]).unitario()
+            if self.unitario:
+                vector = self.func(v[0], v[1], v[2]).unitario()
+            else:
+                vector = self.func(v[0], v[1], v[2])
+            vector *= self.long
             result.append(Vector3D(vector, v, self.color))
         return result
 
 class Curva3D:
-    def __init__(self, func, color='yellow', visible=True):
+    def __init__(self, func, rebanadas, color='yellow', visible=True):
         self.func = func
         self.color = color
         self.visible = visible
+        self.rebanadas = rebanadas
         self.info = self.load_info()
     
     def load_info(self):
-        dom = np.linspace(-50, 50, 1000)
+        self.func.update()
+        dom = np.linspace(-50, 50, self.rebanadas)
         result = self.func(dom)
         mask = np.all((np.array(result, dtype=str)) != 'nan', axis=0)
         result = result[:, mask]
+        mask = np.all((np.array(result, dtype=str)) != 'inf', axis=0)
+        result = result[:, mask]
         return result
-    
     def get_info(self):
         return self.info
     
@@ -316,20 +366,21 @@ class Curva3D:
         return str(self.func)
 
 class Superficie3D:
-    def __init__(self, func, color='pink', mode='Cartesiano', visible=True, axis=1):
+    def __init__(self, func, rebanadas, rango1, rango2, color='pink', mode='Cartesiano', visible=True, axis=1):
         self.func = func
         self.color = color
         self.mode = mode
         self.visible = visible
         self.axis = axis
+        self.rebanadas = rebanadas
+        self.rango1 = rango1
+        self.rango2 = rango2
         self.info = self.load_info()
         
     def load_info(self):
-        rebanadas = 20
-        rango = 3
-        dom = gen_dom(self.mode, rebanadas, rango, self.axis)
+        self.func.update()
+        dom = cartesiano(self.rango1, self.rango2, self.rebanadas)
         if self.mode == 'Esfera':
-            dom = gen_dom(self.mode, rebanadas, rango, self.axis)
             p = self.func(*dom.transpose())
             points = np.column_stack((dom,p))
             move_column(points, self.axis)
@@ -342,7 +393,6 @@ class Superficie3D:
             y = r*np.sin(theta)
             dom = np.column_stack((x,y))
         elif self.mode == 'Cilindro':
-            dom = gen_dom(self.mode, rebanadas, rango, self.axis)
             z = self.func(*dom.transpose())
             points = np.column_stack((dom,z))
             move_column(points, self.axis)
@@ -362,7 +412,7 @@ class Superficie3D:
             dom = np.column_stack((x,y))
         
         points = np.column_stack((dom,z))
-        particiones = np.array(np.split(points, rebanadas))
+        particiones = np.array(np.split(points, self.rebanadas))
         vertices = []
         for i in range(len(particiones)-1):
             for j in range(len(particiones[0])-1):
@@ -378,20 +428,20 @@ class Superficie3D:
         return str(self.func)
 
 class SuperficieParametrica3D(Superficie3D):
-    def __init__(self, func, color='cyan'):
-        super().__init__(func, color)
+    def __init__(self, func, rebanadas, color='cyan'):
+        super().__init__(func, rebanadas, color)
     
     def load_info(self):
-        rebanadas = 30
+        self.func.update()
         rango = (-3,3)
-        dom = cartesiano(rango, rango, rebanadas)
+        dom = cartesiano(rango, rango, self.rebanadas)
         points = []
 
         for i in range(len(dom)):
             v = dom[i]
             vector = self.func(v[0], v[1])
             points.append(vector.coord)
-        particiones = np.array(np.split(np.array(points), rebanadas))
+        particiones = np.array(np.split(np.array(points), self.rebanadas))
         vertices = []
         for i in range(len(particiones)-1):
             for j in range(len(particiones[0])-1):
@@ -399,3 +449,76 @@ class SuperficieParametrica3D(Superficie3D):
                 if not (np.array(vertice, dtype=str) == 'nan').any() and (abs(np.array(vertice)).max()<1000).all():
                     vertices.append(vertice)
         return vertices
+
+class SuperficieCuadratica(Superficie3D):
+    def __init__(self, name, rebanadas, info, desplazamiento,color='pink', visible=True):
+        if len(info) == 1:
+            r = Funcion.calculadora.evaluar(info[0])
+            lbda = f"(abs({r**2})*sen(y)*cos(x))"
+            alpha = f"(abs({r**2})*sen(y)*sen(x))"
+            beta = f"(abs({r**2})*cos(y))"
+            num = f'abs({r**3})'
+        else:
+            a,b,c=Funcion.calculadora.evaluar(info)
+            lbda = f"(abs({b*c})*sen(y)*cos(x))"
+            alpha = f"(abs({a*c})*sen(y)*sen(x))"
+            beta = f"(abs({a*b})*cos(y))"
+            num = f'abs({a*b*c})'
+
+        if name == 'Esfera':
+            func = FuncionEscalar(f'abs({r})')
+            super().__init__(func, rebanadas, (0, 2*np.pi), (0, np.pi), color, 'Esfera', visible,1)
+        
+        elif name == 'Elipse':
+            den = f'({lbda}**2 + {alpha}**2 + {beta}**2)'
+            func = FuncionEscalar(f'{num}/{den}**0.5')
+            super().__init__(func, rebanadas, (0, 2*np.pi), (0, np.pi), color, 'Esfera', visible,1)
+        
+        elif name == 'Hiperboloide1':
+            den = f'({lbda}**2 + {alpha}**2 - {beta}**2)'
+            func = FuncionEscalar(f'{num}/{den}**0.5')
+            super().__init__(func, rebanadas, (0, 2*np.pi), (0, np.pi), color, 'Esfera', visible,1)
+        
+        elif name == 'Hiperboloide2':
+            den = f'(-{lbda}**2 - {alpha}**2 + {beta}**2)'
+            func = FuncionEscalar(f'{num}/{den}**0.5')
+            super().__init__(func, rebanadas, (0, 2*np.pi), (0, np.pi), color, 'Esfera', visible,1)
+        
+        elif name == 'Cono':
+            func = FuncionEscalar(str(r))
+            super().__init__(func, rebanadas, (0, 2*np.pi), (-5, 5), color, 'Esfera', visible,2)
+        self.info += desplazamiento
+        self.func.expresion= f'{name}({",".join(info)},{tuple(desplazamiento)})'
+    
+class Bola:
+    def __init__(self, func, pos, color, tipo, masa=None):
+        self.func = func
+        self.pos = np.array(pos, dtype=float)
+        self.dim = len(self.pos)
+        self.registro_pos = [pos]
+        self.registro_vel = [np.array([2,2])]
+        self.h=0.001
+        self.color = color
+        self.tipo=tipo
+
+    def move(self):
+        if self.tipo=='Flujo':
+            for x in range(25):
+                self.pos += self.h*self.func(*self.pos).coord
+            self.registro_pos.append(self.pos.copy())
+        elif self.tipo == 'Fuerza':
+            for x in range(25):
+                vi = self.registro_vel[-1] + self.h*self.func(*self.pos).coord
+                self.registro_vel.append(vi)
+                self.pos += self.h*vi
+            self.registro_pos.append(self.pos.copy())
+
+    
+    def get_info(self):
+        return np.array(self.registro_pos)
+    
+    def __str__(self):
+        return str(self.func)
+    
+
+    
