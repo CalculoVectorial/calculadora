@@ -9,8 +9,7 @@ def run():
     data = df.to_numpy()
 
     # intervalos de tiempo
-    dt = 1000 / 60 # ms
-    dt = dt / 1000 # s
+    dt = 1 / 60 # segundos
     t = np.cumsum(np.full(len(data), dt, dtype=np.float64))
 
     # calcular velocidades
