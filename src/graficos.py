@@ -459,7 +459,7 @@ class SuperficieCuadratica(Superficie3D):
             beta = f"(abs({r**2})*cos(y))"
             num = f'abs({r**3})'
         else:
-            a,b,c=Funcion.calculadora.evaluar(info)
+            a,b,c=Funcion.calculadora.evaluar(",".join(info))
             lbda = f"(abs({b*c})*sen(y)*cos(x))"
             alpha = f"(abs({a*c})*sen(y)*sen(x))"
             beta = f"(abs({a*b})*cos(y))"
