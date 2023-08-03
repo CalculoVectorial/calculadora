@@ -2,10 +2,7 @@ import numpy as np
 import pygame as py, sys
 from globals_var import *
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 9ba8c5d93b8afac432f9729b8f42d9b41d8e1c22
 screen = py.display.set_mode(size)
 fps = 60
 clock = py.time.Clock()
@@ -28,10 +25,6 @@ while True:
     
     screen.fill('black')
     contain_canvas.draw(screen) #Se dibuja el canvas en el screen
-<<<<<<< HEAD
-=======
-   
->>>>>>> 9ba8c5d93b8afac432f9729b8f42d9b41d8e1c22
     g3.draw(calculadora.get_grafics())
     g.draw(calculadora.get_grafics())
     py.display.flip()

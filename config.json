@@ -1,0 +1,44 @@
+{
+    "label":
+     {
+         "colours":
+         {
+             "normal_text": "black"
+             
+         },
+         "font":
+         {   
+             "size": "12",
+             "bold": "0",
+             "italic": "1"
+         }
+     },
+
+     "button":
+     {
+        "colours":
+        {
+             "normal_bg":"pink",
+             "hovered_bg":"#EF94FD",
+             "active_bg":"#297C7C",
+             "normal_text":"black",
+             "hovered_text":"#414141",
+             "active_text":"white",
+             "normal_border": "black",
+             "hovered_border": "white",
+             "active_border": "red"
+        }
+     },
+
+     "text_entry_line":
+     {
+         "colours":
+         {
+             "dark_bg": "#25292e",
+             "selected_bg": "#55595e",
+             "normal_text": "#AAAAAA",
+             "selected_text": "#FFFFFF",
+             "normal_border": "#FFFFFF"
+         }
+    }
+}

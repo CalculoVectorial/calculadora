@@ -1,9 +1,5 @@
 from interfaz import *
 from util import *
-<<<<<<< HEAD
-=======
-from graficos import Bola
->>>>>>> 9ba8c5d93b8afac432f9729b8f42d9b41d8e1c22
 
 class ComandosCons:
     calculadora = None
@@ -47,10 +43,7 @@ def mostrar_info():
         run_boton = DeleteBoton((100, 30), (0, 90+120*i), name_parametro, command=run, text='Run')
         slider = Slider((100, 30), (150,i*120 + 50),parametro.porcentaje, name_parametro, velocidad=parametro.velocidad)
         info_canvas.add(info, delete_boton, slider, run_boton)
-<<<<<<< HEAD
         i+=1
-=======
->>>>>>> 9ba8c5d93b8afac432f9729b8f42d9b41d8e1c22
 
 def apply(): #Arreglar colores que no existen
     input_text = ComandosCons.input_text
@@ -60,11 +53,7 @@ def apply(): #Arreglar colores que no existen
     slider_rebanada = ComandosCons.slider_rebanada
     slider_vector = ComandosCons.slider_vector
     calculadora = ComandosCons.calculadora
-<<<<<<< HEAD
     if True:
-=======
-    try:
->>>>>>> 9ba8c5d93b8afac432f9729b8f42d9b41d8e1c22
         text = input_text.get_text().replace(" ", "")
         color = input_color.get_text().replace(" ", "")
         rango1 = input_rango_var1.get_text().replace(" ", "")
@@ -89,7 +78,6 @@ def apply(): #Arreglar colores que no existen
             long_vector = slider_vector.get_porcentaje()
             calculadora.gen_grafic(tipo, name, color, exp, rebanadas, long_vector, rango1, rango2)
             mostrar_info()
-<<<<<<< HEAD
     #except:
         #pass
 
@@ -103,18 +91,6 @@ def update():
     for info in info_canvas.objetos:
         if isinstance(info, InfoLabel):
             info.set_text(f"{info.name} = {info.obj}")
-=======
-    except:
-        pass
-
-def update():
-    calculadora = ComandosCons.calculadora
-    for tipo_grafico in calculadora.get_grafics():
-        for name_grafic in calculadora.get_grafics()[tipo_grafico]:
-            grafic = calculadora.get_grafics()[tipo_grafico][name_grafic]
-            if not isinstance(grafic, Bola):
-                grafic.info = grafic.load_info()
->>>>>>> 9ba8c5d93b8afac432f9729b8f42d9b41d8e1c22
 
 
 def delete(name):
@@ -129,11 +105,7 @@ def delete(name):
 def run(name):
     info_canvas = ComandosCons.info_canvas
     for obj in info_canvas.objetos:
-<<<<<<< HEAD
         if isinstance(obj, DeleteBoton) and obj.name == name:
-=======
-        if isinstance(obj, DeleteBoton):
->>>>>>> 9ba8c5d93b8afac432f9729b8f42d9b41d8e1c22
             if obj.text == 'Run':
                 obj.set_text('Stop')
             elif obj.text == 'Stop':
@@ -191,17 +163,10 @@ def magitud_vector():
     long_button = ComandosCons.long_button
     if long_button.text == 'Unitario':
         long_button.set_text('Default')
-<<<<<<< HEAD
         calculadora.set_unitario(False)
     else:
         long_button.set_text('Unitario')
         calculadora.set_unitario(True)
-=======
-        calculadora.set_unitario(True)
-    else:
-        long_button.set_text('Unitario')
-        calculadora.set_unitario(False)
->>>>>>> 9ba8c5d93b8afac432f9729b8f42d9b41d8e1c22
 
 def flujo():
     calculadora = ComandosCons.calculadora
