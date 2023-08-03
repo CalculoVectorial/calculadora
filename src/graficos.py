@@ -120,7 +120,7 @@ class Graficador2D(Graficador):
             py.draw.line(self.canvas.canvas, (50,50,50), self.transformacion([-borde_x, -j]), self.transformacion([borde_x, -j]))
 
     def draw(self, grafics):
-        if True:
+        try:
             if self.visible:
                 if self.escala >= 15:
                     self.draw_malla()
@@ -139,8 +139,8 @@ class Graficador2D(Graficador):
                     bola = grafics['Bola'][bola]
                     if bola.dim == 2:
                         self.draw_bola(bola)
-        #except:
-            #pass
+        except:
+            pass
 
 
 class Graficador3D(Graficador):

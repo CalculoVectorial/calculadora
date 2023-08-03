@@ -53,7 +53,7 @@ def apply(): #Arreglar colores que no existen
     slider_rebanada = ComandosCons.slider_rebanada
     slider_vector = ComandosCons.slider_vector
     calculadora = ComandosCons.calculadora
-    if True:
+    try:
         text = input_text.get_text().replace(" ", "")
         color = input_color.get_text().replace(" ", "")
         rango1 = input_rango_var1.get_text().replace(" ", "")
@@ -78,8 +78,8 @@ def apply(): #Arreglar colores que no existen
             long_vector = slider_vector.get_porcentaje()
             calculadora.gen_grafic(tipo, name, color, exp, rebanadas, long_vector, rango1, rango2)
             mostrar_info()
-    #except:
-        #pass
+    except:
+        pass
 
 def update():
     calculadora = ComandosCons.calculadora
