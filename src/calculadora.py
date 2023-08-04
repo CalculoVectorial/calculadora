@@ -156,7 +156,7 @@ class Calculadora:
                 exp = exp.split(';')
                 obj = FuncionVectorial(exp, ['u', 'v'])
                 rebanadas = 2 + int(rebanadas*75)
-                grafic_obj = SuperficieParametrica3D(obj, rebanadas, color)
+                grafic_obj = SuperficieParametrica3D(obj, rebanadas, rango1, rango2,color)
                 self.add_funcion(nombre, obj)
                 self.grafics['SuperficieParametrica3D'][nombre] = grafic_obj
             

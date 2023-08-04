@@ -435,8 +435,8 @@ class Superficie3D:
         return str(self.func)
 
 class SuperficieParametrica3D(Superficie3D):
-    def __init__(self, func, rebanadas, color='cyan'):
-        super().__init__(func, rebanadas, color)
+    def __init__(self, func, rebanadas, rango1, rango2,color='cyan'):
+        super().__init__(func, rebanadas, rango1, rango2,color)
     
     def load_info(self):
         self.func.update()
