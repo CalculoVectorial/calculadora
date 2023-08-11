@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Vite App</title>
+    </head>
+    <body>
+        <div id="app"></div>
+        <h2>Hello OpenCV.js</h2>
+        <p id="status">OpenCV.js is loading...</p>
+        <div>
+            <button id="startButton">Start camera</button>
+        </div>
+        <video id="cameraStream" autoplay playsinline></video>
+        <script type="text/javascript">
+            var Module = {
+                // https://emscripten.org/docs/api_reference/module.html#Module.onRuntimeInitialized
+                onRuntimeInitialized() {
+                    document.getElementById("status").innerHTML =
+                        "OpenCV.js is ready.";
+                },
+            };
+        </script>
+        <script
+            async
+            src="https://docs.opencv.org/3.4.0/opencv.js"
+            onload="onOpenCvReady();"
+            type="text/javascript"
+        ></script>
+        <script src="camera.js"></script>
+        <script src="opencv.js"></script>
+    </body>
+</html>
