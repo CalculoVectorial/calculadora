@@ -3,6 +3,9 @@ import pygame as py, sys
 from globals_var import *
 
 
+
+
+
 screen = py.display.set_mode(size)
 fps = 60
 clock = py.time.Clock()
@@ -29,7 +32,3 @@ while True:
     g.draw(calculadora.get_grafics())
     py.display.flip()
     manager.update(clock.tick(fps)/600) #Se actualiza el manager, esta línea es OBLIGATORIA
-        
-
-
-

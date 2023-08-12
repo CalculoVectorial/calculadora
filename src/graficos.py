@@ -3,7 +3,7 @@ import pygame as py
 from util import *
 from vector import Vector
 from funciones import *
-from comandos import update
+from comandos import update, cargar_curva
 
 class Graficador:
     def __init__(self, dimension, canvas, escala=50):
@@ -87,6 +87,7 @@ class Graficador:
 class Graficador2D(Graficador):
     def __init__(self, canvas, escala=50):
         super().__init__(2, canvas, escala)
+        self.prueba_curva = False
     
     def rotacion(self, coord):
         fila1 = [np.cos(self.theta), -np.sin(self.theta)]
@@ -139,6 +140,10 @@ class Graficador2D(Graficador):
                     bola = grafics['Bola'][bola]
                     if bola.dim == 2:
                         self.draw_bola(bola)
+                if self.prueba_curva:
+                    datos = cargar_curva()
+                    datos = self.transformacion(datos.transpose()).transpose()
+                    self.interpolacion_lineal(datos,"orange")
         except:
             pass
 
@@ -250,7 +255,8 @@ class Graficador3D(Graficador):
 
 class Vector2D:
     def __init__(self, vector, origen = (0,0), color = 'red', visible=True):
-        self.vector = vector
+        self.str_vector = vector
+        self.vector = Vector(self.str_vector)
         self.color=color
         self.origen = np.array(origen, dtype=float)
         self._coord_ = self.origen + self.vector.coord
@@ -259,6 +265,8 @@ class Vector2D:
 
 
     def load_info(self):
+        self.vector = Vector(self.str_vector)
+        self._coord_ = self.origen + self.vector.coord
         u = self.vector.unitario()*(-1/5)
         cola1 = true_rotacion2D(u.coord, np.pi/4) + self._coord_
         cola2 = true_rotacion2D(u.coord, -np.pi/4) + self._coord_
@@ -273,15 +281,21 @@ class Vector2D:
 
 class Point2D:
     def __init__(self, coord, color='blue', visible=True):
-        self.coord = np.array(coord, dtype=float)
+        self.str_coord = coord
+        self.coord = np.array(Funcion.calculadora.evaluar(self.str_coord), dtype=float)
         self.color = color
         self.visible = visible
+        self.info = self.load_info()
  
-    def get_info(self):
+    def load_info(self):
+        self.coord = np.array(Funcion.calculadora.evaluar(self.str_coord), dtype=float)
         return self.coord
     
+    def get_info(self):
+        return self.info
+    
     def __str__(self):
-        return str(tuple(self.coord))
+        return str(tuple(self.coord.round(2)))
 
 class Campo2D:
     def __init__(self, func, rebanadas, long_vector, unitario=False,color='orange', visible=True):
@@ -291,6 +305,7 @@ class Campo2D:
         self.rebanadas = rebanadas
         self.long = long_vector
         self.unitario = unitario
+        self.p = 0.3
         self.info = self.load_info()
     
     def load_info(self):
@@ -355,6 +370,7 @@ class Curva3D:
         self.color = color
         self.visible = visible
         self.rebanadas = rebanadas
+        self.p = 0.3
         self.info = self.load_info()
     
     def load_info(self):
@@ -382,6 +398,7 @@ class Superficie3D:
         self.rebanadas = rebanadas
         self.rango1 = rango1
         self.rango2 = rango2
+        self.p = 0.3
         self.info = self.load_info()
         
     def load_info(self):
@@ -440,8 +457,7 @@ class SuperficieParametrica3D(Superficie3D):
     
     def load_info(self):
         self.func.update()
-        rango = (-3,3)
-        dom = cartesiano(rango, rango, self.rebanadas)
+        dom = cartesiano(self.rango1, self.rango2, self.rebanadas)
         points = []
 
         for i in range(len(dom)):
@@ -458,7 +474,11 @@ class SuperficieParametrica3D(Superficie3D):
         return vertices
 
 class SuperficieCuadratica(Superficie3D):
+    def load_info(self):
+            return super().load_info() + self.desplazamiento
+
     def __init__(self, name, rebanadas, info, desplazamiento,color='pink', visible=True):
+        self.desplazamiento = desplazamiento
         if len(info) == 1:
             r = Funcion.calculadora.evaluar(info[0])
             lbda = f"(abs({r**2})*sen(y)*cos(x))"
@@ -476,7 +496,7 @@ class SuperficieCuadratica(Superficie3D):
             func = FuncionEscalar(f'abs({r})')
             super().__init__(func, rebanadas, (0, 2*np.pi), (0, np.pi), color, 'Esfera', visible,1)
         
-        elif name == 'Elipse':
+        elif name == 'Elipsoide':
             den = f'({lbda}**2 + {alpha}**2 + {beta}**2)'
             func = FuncionEscalar(f'{num}/{den}**0.5')
             super().__init__(func, rebanadas, (0, 2*np.pi), (0, np.pi), color, 'Esfera', visible,1)
@@ -494,8 +514,11 @@ class SuperficieCuadratica(Superficie3D):
         elif name == 'Cono':
             func = FuncionEscalar(str(r))
             super().__init__(func, rebanadas, (0, 2*np.pi), (-5, 5), color, 'Esfera', visible,2)
-        self.info += desplazamiento
-        self.func.expresion= f'{name}({",".join(info)},{tuple(desplazamiento)})'
+        self.info = self.load_info()
+        self.func.name= f'{name}({",".join(info)},{tuple(desplazamiento)})'
+        
+        
+
     
 class Bola:
     def __init__(self, func, pos, color, tipo, masa=None):

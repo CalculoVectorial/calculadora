@@ -105,7 +105,7 @@ def gen_dom(coords, rebanadas, rango, axis):
 
 def identificar_tipo_entrada(texto):
     # Verificar si es un punto
-    if texto.startswith(('Esfera', 'Elipse', 'Hiperboloide1', 'Hiperboloide2', 'Cono', 'Parametro', 'Bola', 'Diff', 'Grad')):
+    if texto.startswith(('Esfera', 'Elipsoide', 'Hiperboloide1', 'Hiperboloide2', 'Cono', 'Parametro', 'Bola', 'Diff', 'Grad')):
         return "Special"
         
     elif texto.startswith("(") and texto.endswith(")") and "," in texto:

@@ -96,22 +96,22 @@ class Calculadora:
             if tipo == 'Vector':
                 obj = Vector(exp)
                 if len(obj.coord) == 2:
-                    grafic_obj = Vector2D(obj, color=color)
+                    grafic_obj = Vector2D(exp, color=color)
                     self.add_constante(nombre, obj)
                     self.grafics['Vector2D'][nombre] = grafic_obj
                 elif len(obj.coord) == 3:
-                    grafic_obj = Vector3D(obj, color=color)
+                    grafic_obj = Vector3D(exp, color=color)
                     self.add_constante(nombre, obj)
                     self.grafics['Vector3D'][nombre] = grafic_obj
             
             elif tipo == 'Point':
                 obj = np.array(self.evaluar(exp))
                 if len(obj) == 2:
-                    grafic_obj = Point2D(obj, color=color)
+                    grafic_obj = Point2D(exp, color=color)
                     self.add_constante(nombre, obj)
                     self.grafics['Point2D'][nombre] = grafic_obj
                 elif len(obj) == 3:
-                    grafic_obj = Point3D(obj, color=color)
+                    grafic_obj = Point3D(exp, color=color)
                     self.add_constante(nombre, obj)
                     self.grafics['Point3D'][nombre] = grafic_obj
                 
@@ -151,7 +151,7 @@ class Calculadora:
             elif tipo == 'SuperficieParametrica':
                 if rango1 == '':
                     rango1 = np.array([-3,3])
-                if rango2 != '':
+                if rango2 == '':
                     rango2 = np.array([-3,3])
                 exp = exp.split(';')
                 obj = FuncionVectorial(exp, ['u', 'v'])
@@ -163,11 +163,11 @@ class Calculadora:
             elif tipo == 'Special':
                 mode = 'Esfera'
                 name, info, desplazamiento = info_special_sup(exp)
-                if name in ['Esfera', 'Elipse', 'Hiperboloide1', 'Hiperboloide2', 'Cono']:
+                if name in ['Esfera', 'Elipsoide', 'Hiperboloide1', 'Hiperboloide2', 'Cono']:
                     desplazamiento = np.array(self.evaluar(desplazamiento))
                     rebanadas = 2 + int(rebanadas*75)
                     grafic_obj = SuperficieCuadratica(name, rebanadas, info, desplazamiento,color)
-                    self.grafics['SuperficieParametrica3D'][nombre] = grafic_obj
+                    self.grafics['Superficie3D'][nombre] = grafic_obj
                 
                 elif name == 'Bola':
                     desplazamiento = np.array(self.evaluar(desplazamiento))
@@ -194,6 +194,7 @@ class Calculadora:
                         grafic_obj = Superficie3D(obj, rebanadas, rango1, rango2, color, self.mode, axis=self.axis)
                         self.add_funcion(nombre, obj)
                         self.grafics['Superficie3D'][nombre] = grafic_obj
+                    
                     else:
                         var = np.array(self.evaluar(var))
                         obj = self.diff_u(var,name_func)

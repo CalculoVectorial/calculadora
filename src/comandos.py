@@ -8,8 +8,6 @@ class ComandosCons:
     input_color = None
     input_rango_var1 = None
     input_rango_var2 = None
-    slider_rebanada = None
-    slider_vector = None
     axis_button = None
     coord_button = None
     dim_button = None
@@ -31,8 +29,21 @@ def mostrar_info():
             for name_grafic in calculadora.get_grafics()[tipo_grafico]:
                 grafic = calculadora.get_grafics()[tipo_grafico][name_grafic]
                 info = InfoLabel((400, 60), (0,i*120), name_grafic, grafic)
-                delete_boton = DeleteBoton((100, 30), (150, 90+120*i), name_grafic, command=delete)
-                info_canvas.add(info, delete_boton)
+                
+                if tipo_grafico in ["Campo2D","Campo3D"]:
+                    delete_boton = DeleteBoton((100, 30), (30, 90+120*i), name_grafic, command=delete)
+                    slider1 = Slider((100, 30), (150, 90+120*i),grafic.p, name_grafic)
+                    slider2 = Slider((100, 30), (270, 90+120*i),grafic.long, name_grafic,tag='magnitud')
+                    info_canvas.add(info, delete_boton,slider1,slider2)
+
+                elif tipo_grafico not in ["Vector2D", "Point2D","Vector3D", "Point3D", "Bola"]:
+                    delete_boton = DeleteBoton((100, 30), (50, 90+120*i), name_grafic, command=delete)
+                    slider = Slider((100, 30), (170, 90+120*i),grafic.p, name_grafic)
+                    info_canvas.add(info, delete_boton,slider)
+                
+                else:
+                    delete_boton = DeleteBoton((100, 30), (150, 90+120*i), name_grafic, command=delete)
+                    info_canvas.add(info, delete_boton)
                 i+=1
 
     
@@ -50,8 +61,6 @@ def apply(): #Arreglar colores que no existen
     input_color = ComandosCons.input_color
     input_rango_var1 = ComandosCons.input_rango_var1
     input_rango_var2 = ComandosCons.input_rango_var2
-    slider_rebanada = ComandosCons.slider_rebanada
-    slider_vector = ComandosCons.slider_vector
     calculadora = ComandosCons.calculadora
     try:
         text = input_text.get_text().replace(" ", "")
@@ -74,8 +83,8 @@ def apply(): #Arreglar colores que no existen
             if color == '':
                 color = 'orange'
             
-            rebanadas = slider_rebanada.get_porcentaje()
-            long_vector = slider_vector.get_porcentaje()
+            rebanadas = 0.3
+            long_vector = 1
             calculadora.gen_grafic(tipo, name, color, exp, rebanadas, long_vector, rango1, rango2)
             mostrar_info()
     except:
@@ -87,7 +96,24 @@ def update():
     for tipo_grafico in calculadora.get_grafics():
         for name_grafic in calculadora.get_grafics()[tipo_grafico]:
             grafic = calculadora.get_grafics()[tipo_grafico][name_grafic]
-            grafic.info = grafic.load_info()
+            try:
+                for info in info_canvas.objetos:
+                    if isinstance(info, Slider):
+                        if info.name_parametro == name_grafic:
+                            if info.tag == "magnitud":
+                                grafic.long = info.get_porcentaje()
+                            else:
+                                grafic.p = info.get_porcentaje()
+                                if "Curva" not in str(type(grafic)):
+                                    grafic.rebanadas = 1 + int(info.get_porcentaje()*50)
+                                else:
+                                    grafic.rebanadas = 1 + int(info.get_porcentaje()*1000)
+            except:
+                pass 
+            try:  
+                grafic.info = grafic.load_info()         
+            except:
+                pass
     for info in info_canvas.objetos:
         if isinstance(info, InfoLabel):
             info.set_text(f"{info.name} = {info.obj}")
@@ -177,3 +203,14 @@ def flujo():
     else:
         flujo_button.set_text('Flujo')
         calculadora.tipo_campo='Flujo'
+
+def cargar_curva():
+    try:
+        ComandosCons.g.prueba_curva = True
+        with open("datos.txt", "r") as f:
+            datos = np.array(f.read().split(","), dtype=float)
+            datos = datos.reshape((datos.size//2, 2))
+        return datos
+
+    except:
+        pass

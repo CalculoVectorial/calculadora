@@ -138,7 +138,7 @@ class DeleteBoton(Boton):
 class Slider:
     calculadora = None
     update = None
-    def __init__(self, size, pos, inicial=0,name_parametro=None, velocidad=0.02):
+    def __init__(self, size, pos, inicial=0,name_parametro=None, velocidad=0.02,tag=None):
         self.size = np.array(size)
         self.pos = np.array(pos)
         self.inicial = inicial
@@ -147,6 +147,7 @@ class Slider:
         self.circle_inicial = np.array([self.pos[0]+self.porcentaje*self.size[0], self.pos[1]+self.size[1]/2])
         self.name_parametro = name_parametro
         self.run=False
+        self.tag = tag
         self.regreso = False
         self.velocidad = velocidad
 
@@ -166,11 +167,11 @@ class Slider:
             elif self.porcentaje<0:
                 self.porcentaje=0
                 self.regreso= not self.regreso
-        if self.name_parametro != None:
+        if self.name_parametro != None and self.name_parametro in Slider.calculadora.get_parametros():
             Slider.calculadora.get_parametros()[self.name_parametro].set_porcentaje(self.porcentaje)
             Slider.calculadora.constantes[self.name_parametro] = Slider.calculadora.get_parametros()[self.name_parametro].valor
             Slider.calculadora.locals[self.name_parametro] = Slider.calculadora.get_parametros()[self.name_parametro].valor
-            Slider.update()
+        Slider.update()
 
     def click(self, pressed, mouse, pos):
         if self.run:
