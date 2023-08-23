@@ -27,7 +27,7 @@ def record_face():
 
             print("X:", center_x, "Y:", center_y)
 
-            with open("../src/datos.txt", "a") as file:
+            with open("src/datos.txt", "a") as file:
                 file.write("," + str(center_x) + "," + str(center_y))
             # Draw rectangle around the face
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
@@ -44,6 +44,6 @@ def record_face():
     cap.release()
     cv2.destroyAllWindows()
 
-with open("../src/datos.txt", "w") as file:
+with open("src/datos.txt", "w") as file:
     file.write("0,0")
 record_face()

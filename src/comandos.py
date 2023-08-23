@@ -207,7 +207,7 @@ def flujo():
 def cargar_curva():
     try:
         ComandosCons.g.prueba_curva = True
-        with open("datos.txt", "r") as f:
+        with open("src/datos.txt", "r") as f:
             datos = np.array(f.read().split(","), dtype=float)
             datos = datos.reshape((datos.size//2, 2))
         return datos
