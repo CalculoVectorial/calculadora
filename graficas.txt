@@ -1,0 +1,29 @@
+Superficie de Enneper
+u - (u**3) / 3 + u * v**2;v - (v**3) / 3 + u**2 * v;u**2 - v**2
+
+Toroide
+(3 + 1 * cos(v)) * cos(u);(3 + 1 * cos(v)) * sin(u);1 * sin(v)
+0,2*pi
+#1fedd9
+
+Tumor
+5+sen(6*x+p)*sen(5*y+p)
+#8f11f0
+
+Sabana
+Parametro(p,0.1,(0,9*pi/2))
+sen(x+p)+cos(y+p)
+-10,10
+#d3fc03
+
+Sabana  Cilindrica
+Parametro(p,0.1,(0,9*pi/2))
+sen(x+p)+cos(y+p)
+0,10
+#fc0339
+
+viviani
+2.5*(1+cos(t+p)); 2.5*sen(t+p); 5*sen(t/2+p); 
+
+espiral
+(4+sen(20*t))*cos(t); (4+sen(20*t))*sen(t); cos(20*t)
